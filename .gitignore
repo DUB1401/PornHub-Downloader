@@ -1,0 +1,14 @@
+# Visual Studio project files.
+PornHub Downloader.pyproj
+PornHub Downloader.sln
+.vs
+
+# Build data (not available in the current version).
+PornHub Downloader.spec
+Build
+
+# Python cache.
+__pycache__
+
+# Downloaded videos.
+Downloads

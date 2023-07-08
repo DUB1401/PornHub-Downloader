@@ -1,0 +1,6 @@
+pyperclip
+pyfiglet
+requests
+pyqt6
+lxml
+tqdm

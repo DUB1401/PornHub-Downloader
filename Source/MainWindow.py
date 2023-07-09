@@ -1,4 +1,3 @@
-from genericpath import isdir
 from PyQt6.QtWidgets import (
 	QApplication, 
 	QCheckBox, 
@@ -13,52 +12,16 @@ from PyQt6.QtWidgets import (
 	QVBoxLayout
 )
 
-from PyQt6.QtCore import (
-	QObject, 
-	Qt,
-	QThread, 
-	QUrl,
-	pyqtSignal
-)
-
-from PyQt6.QtGui import QDesktopServices
+from Source.pornhub_dl import pornhub_dl
+from PyQt6.QtGui import QDesktopServices, QTextCursor
+from PyQt6.QtCore import Qt,QThread, QUrl
 
 import pyperclip
 import shutil
 import json
+import time
 import os
-
-# Потоковый обработчик взаимодейтсвий с библиотекой pornhub_dl.
-class PornhubLibSubprocess(QObject):
-
-	#==========================================================================================#
-	# >>>>> СВОЙСТВА <<<<< #
-	#==========================================================================================#
-
-	# Сигнал: завершение потока. Содержит: завершающий код вызова библиотеки.
-	finished = pyqtSignal(int)
-	# Исполняемая команда.
-	__Command = None
-
-	#==========================================================================================#
-	# >>>>> МЕТОДЫ <<<<< #
-	#==========================================================================================#
-
-	# Конструктор: задаёт команду для выполнения.
-	def __init__(self, Command: str):
-		# 
-		super().__init__()
-
-		#---> Генерация свойств.
-		#==========================================================================================#
-		self.__Command = Command
-
-	# Запускает выполнение команды.
-	def run(self):
-		# Выполнение команды.
-		ExitCode = os.system(self.__Command)
-		# Генерация сигнала с завершающим кодом приложения.
-		self.finished.emit(ExitCode)
+import re
 
 # Обработчик взаимодействий с главным окном.
 class MainWindow(QMainWindow):
@@ -71,14 +34,16 @@ class MainWindow(QMainWindow):
 	__DownloadingThread = None
 	# Список URL видео.
 	__VideoLinks = list()
-	# Индекс обрабатываемого видео.
-	__VideoIndex = None
+	# Экземпляр приложения.
+	__Application = None
+	# Время начала загрузки.
+	__StartTime = None
 	# Глобальные настройки.
 	__Settings = None
 	# Словарь важных значений.
 	__ComData = None
-	# Экземпляр приложения.
-	__Application = None
+	# Индекс обрабатываемого видео.
+	__VideoIndex = 0
 
 	#==========================================================================================#
 	# >>>>> ОБРАБОТЧИКИ СИГНАЛОВ <<<<< #
@@ -104,6 +69,8 @@ class MainWindow(QMainWindow):
 	def __DownloadVideos(self):
 		# Очистка содержимого псевдоконсоли.
 		self.Output.setText("")
+		# Удалить повторяющиеся ссылки.
+		self.__RemoveRepeatedLinks()
 		# Деактивация управляющих элементов.
 		self.Clear.setEnabled(False)
 		self.Download.setEnabled(False)
@@ -113,8 +80,6 @@ class MainWindow(QMainWindow):
 		self.__VideoLinks = list(filter(None, self.Input.toPlainText().strip().split('\n')))
 		# Текущая директория.
 		CurrentDirectory = os.getcwd()
-		# Обнуление индекса загружаемого видео.
-		self.__VideoIndex = 0
 		# Установка текущей директории для библиотеки.
 		os.chdir(CurrentDirectory + "\\pornhub_dl")
 		# Настройка индикатора прогресса.
@@ -123,6 +88,56 @@ class MainWindow(QMainWindow):
 		self.ProgressBar.setVisible(True)
 		# Запуск загрузчика.
 		self.__StartDownloading()
+
+	# Форматирует поле ввода.
+	def __FormatInput(self):
+		# Получение содержимого поля ввода.
+		InputText = self.Input.toPlainText()
+		# Разбитие содержимого на отдельные строки.
+		InputLines = InputText.split('\n')
+		# Обработанные строки.
+		FormattedLines = list() 
+		# Результирующие строки.
+		ResultLines = list()
+		# Результирующий текст.
+		ResultText = None
+
+		# Для каждой строки.
+		for Line in InputLines:
+			# Попытаться разбить строку по вхождению протокола.
+			Bufer = Line.replace("https", "\nhttps").strip("\n \t")
+			# Сохранение разбитых строк.
+			FormattedLines += Bufer.split('\n')
+		
+		# Для каждой обработанной строки.
+		for Line in FormattedLines:
+			# Очистка строки от аргументов.
+			Line = Line.split('&')[0]
+
+			# Если строка соответствует шаблону, то сохранить её.
+			if bool(re.match(r"https:\/\/rt\.pornhub\.com\/view_video\.php\?viewkey=\S+\b", Line)) == True:
+				ResultLines.append(Line)
+
+		# Построение результирующего текста.
+		ResultText = "\n".join(ResultLines) + "\n"
+
+		# Если результирующий текст не содержит символов.
+		if ResultText.strip("\n \t") == "":
+			# Обнулить результирующий текст.
+			ResultText = ""
+			# Деактивировать кнопку загрузки.
+			self.Download.setEnabled(False)
+
+		elif self.__VideoIndex == 0:
+			# Активировать кнопку загрузки.
+			self.Download.setEnabled(True)
+
+		# Если текст отличается, то поместить отформатированный список ссылок в поле ввода.
+		if ResultText != self.Input.toPlainText():
+			self.Input.setText(ResultText)
+
+		# Перемещение каретки в конец поля ввода.
+		self.Input.moveCursor(QTextCursor.MoveOperation.End, QTextCursor.MoveMode.MoveAnchor)
 
 	# Открывает в браузере страницу проекта на GitHub.
 	def __OpenGitHub(self):
@@ -146,6 +161,10 @@ class MainWindow(QMainWindow):
 		# Сохранение настройки.
 		with open("Settings.json", "w", encoding = "utf-8") as FileWrite:
 			json.dump(Bufer, FileWrite, ensure_ascii = False, indent = '\t', separators = (",", ": "))
+
+	# Прокручивает псевдоконсоль вниз.
+	def __ScrollOutputToEnd(self):
+		self.Output.moveCursor(QTextCursor.MoveOperation.End)
 
 	#==========================================================================================#
 	# >>>>> МЕТОДЫ <<<<< #
@@ -186,19 +205,21 @@ class MainWindow(QMainWindow):
 		self.Download.clicked.connect(self.__DownloadVideos)
 		self.Download.move(870, 640)
 		self.Download.resize(200, 40)
+		self.Download.setEnabled(False)
 		self.Download.setText("⬇ Download")
 
 		# Создание объекта GUI: поле ввода ссылок на видео.
 		self.Input = QTextEdit(self)
 		self.Input.move(10, 10)
 		self.Input.resize(850, 420)
-		self.Input.setPlaceholderText("Paste here links to videos or press button...")
+		self.Input.setPlaceholderText("Paste here links to videos")
+		self.Input.textChanged.connect(self.__FormatInput)
 
 		# Создание объекта GUI: ссылка на GitHub.
 		self.Link = QLabel(self)
 		self.Link.linkActivated.connect(self.__OpenGitHub)
 		self.Link.move(1030, 690)
-		self.Link.setText("<a href=\"http://stackoverflow.com/\">GitHub</a>")
+		self.Link.setText("<a href=\"https://github.com/DUB1401/PornHub-Downloader\">GitHub</a>")
 		self.Link.adjustSize()
 
 		# Создание объекта GUI: поле псевдоконсольного вывода.
@@ -206,7 +227,8 @@ class MainWindow(QMainWindow):
 		self.Output.move(10, 490)
 		self.Output.resize(850, 190)
 		self.Output.setReadOnly(True)
-		self.Output.setPlaceholderText("Output logs...")
+		self.Output.setPlaceholderText("Output logs")
+		self.Output.textChanged.connect(self.__ScrollOutputToEnd)
 
 		# Создание объекта GUI: кнока добавления ссылки в очередь.
 		self.Paste = QPushButton(self)
@@ -224,7 +246,7 @@ class MainWindow(QMainWindow):
 
 		# Создание объекта GUI: контейнер настроек.
 		self.SettingsBox = QGroupBox(self)
-		self.SettingsBox.move(870, 0)
+		self.SettingsBox.move(870, 10)
 		self.SettingsBox.resize(200, 120)
 		self.SettingsBox.setAlignment(Qt.AlignmentFlag.AlignCenter)
 		self.SettingsBox.setTitle("🔧 Settings")
@@ -267,15 +289,24 @@ class MainWindow(QMainWindow):
 		SettingsLayout.addStretch()
 
 	# Обрабатывает завершение загрузки видео.
-	def __EndDownloading(self):
+	def __EndDownloading(self, ExitCode: int):
 		# Инкремент индекса загружаемого видео.
 		self.__VideoIndex += 1
 		# Текущая директория.
 		CurrentDirectory = os.getcwd()
 		# Увеличение процента заполнение в индикаторе прогресса.
 		self.ProgressBar.setValue(self.__VideoIndex)
+
+		# Если загрузка завершилась успешно, то вывести в псевдоконсоль время выполнения, иначе вывести ошибку.
+		if ExitCode == 0:
+			self.Output.setText(self.Output.toPlainText() + "Done! (" + str(round(float(time.time() - self.__StartTime), 2)) + " seconds)\n")
+
+		else:
+			self.Output.setText(self.Output.toPlainText() + "Error! See CMD output for more information.\n")
+
 		# Вывод в псевдоконсоль: разделитель.
 		self.Output.setText(self.Output.toPlainText() + "==========================================================================================\n")
+
 		# Структурировать загруженные видео.
 		self.__StructurizateDownloads()
 		# Удаление первого в очереди URL.
@@ -296,8 +327,32 @@ class MainWindow(QMainWindow):
 			self.Download.setEnabled(True)
 			self.Output.setReadOnly(False)
 			self.Paste.setEnabled(True)
+			# Обнуление индекса загружаемого видео.
+			self.__VideoIndex = 0
 			# Очистка поля ввода.
 			self.Input.setText("")
+
+	# Удаляет повторяющиеся ссылки.
+	def __RemoveRepeatedLinks(self):
+		# Получение содержимого поля ввода.
+		InputText = self.Input.toPlainText()
+		# Разбитие содержимого на отдельные строки.
+		InputLines = InputText.split('\n')
+		# Удаление дубликатов ссылок.
+		ResultLines = [*set(InputLines)]
+
+		# Если количество ссылок отличается от изначального.
+		if len(InputLines) != len(ResultLines):
+			# Построение результирующего текста.
+			ResultText = "\n".join(ResultLines) + "\n"
+			# Поместить отсортированный список ссылок в поле ввода.
+			self.Input.setText(ResultText)
+			# Вычисление количества удалённых повторов.
+			RepeatedLinksCount = len(InputLines) - len(ResultLines)
+			# Вывод в псевдоконсоль: количество удалённых повторов.
+			self.Output.setText(self.Output.toPlainText() + "Removed identical links count: " + str(RepeatedLinksCount) + " \n")
+			# Вывод в псевдоконсоль: разделитель.
+			self.Output.setText(self.Output.toPlainText() + "==========================================================================================\n")
 
 	# Обрабатывает начало загрузки видео.
 	def __StartDownloading(self):
@@ -305,6 +360,8 @@ class MainWindow(QMainWindow):
 		CurrentDirectory = os.getcwd()
 		# Директория загрузки.
 		SaveDirectory = self.__Settings["save-directory"]
+		# Сохранение времени начала загрузки.
+		self.__StartTime = time.time()
 
 		# Если остались незагруженные видео.
 		if self.__VideoIndex < len(self.__VideoLinks):
@@ -315,7 +372,7 @@ class MainWindow(QMainWindow):
 			# Вывод в псевдоконсоль: название видео.
 			self.Output.setText(self.Output.toPlainText() + "Current task: " + self.__VideoLinks[self.__VideoIndex] + "\n")
 			# Настройка и запуск обработчика библиотеки в отдельном потоке.
-			self.Subprocess = PornhubLibSubprocess(f"{CurrentDirectory}/pornhub_dl.py --url {CurrentLink} --dir \"{SaveDirectory}\"")
+			self.Subprocess = pornhub_dl(f"{CurrentDirectory}/pornhub_dl.py --url {CurrentLink} --dir \"{SaveDirectory}\"")
 			self.Subprocess.moveToThread(self.__DownloadingThread)
 			self.__DownloadingThread.quit()
 			self.__DownloadingThread.started.connect(self.Subprocess.run)
@@ -362,7 +419,7 @@ class MainWindow(QMainWindow):
 			# Удалить исходную директорию с файлами.
 			shutil.rmtree(self.__Settings["save-directory"] + "\\model")
 
-	# Конструктор.
+	# Конструктор: задаёт экземпляр приложения, словарь важных значений и глобальные настройки.
 	def __init__(self, Application: QApplication, ComData: dict, Settings: dict):
 		# 
 		super().__init__()

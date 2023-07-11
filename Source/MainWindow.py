@@ -299,7 +299,7 @@ class MainWindow(QMainWindow):
 
 		# Если загрузка завершилась успешно, то вывести в псевдоконсоль время выполнения, иначе вывести ошибку.
 		if ExitCode == 0:
-			self.Print("<b style=\"color: green;\">Done!</b> (" + str(round(float(time.time() - self.__StartTime), 2)) + " seconds)", True)
+			self.Print("<b style=\"color: green;\">Done!</b> (" + self.__FormatExecutionTime(round(float(time.time() - self.__StartTime), 2)) + ")", True)
 
 		else:
 			self.Print("<b style=\"color: red;\">Error!</b> See CMD output for more information.", True)
@@ -328,6 +328,28 @@ class MainWindow(QMainWindow):
 			self.__VideoIndex = 0
 			# Очистка поля ввода.
 			self.Input.setText("")
+
+	# Форматирует время выполнения задачи.
+	def __FormatExecutionTime(self, ExecutionTime: float) -> str:
+		# Результат форматирования.
+		Result = ""
+		# Получение количества прошедших минут.
+		ElapsedMinutes = int(ExecutionTime / 60.0)
+
+		# Если прошло больше минуты.
+		if ElapsedMinutes > 0:
+			# Добавление количества прошедших минут в формат.
+			Result += str(ElapsedMinutes) + " minutes "
+			# Вычисление оставшихся секунд.
+			ElapsedSeconds = round(ExecutionTime % 60.0, 2)
+			# Добавление количества оставшихся секунд в формат.
+			Result += str(ElapsedSeconds) + " seconds"
+
+		else:
+			# Форматирование прошедших секунд.
+			Result += str(ExecutionTime) + " seconds"
+
+		return Result
 
 	# Удаляет повторяющиеся ссылки.
 	def __RemoveRepeatedLinks(self):

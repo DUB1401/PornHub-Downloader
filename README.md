@@ -1,5 +1,5 @@
 # PornHub Downloader
-**PornHub Downloader** – это приложение с графическим интерфейсом для массовой загрузки видеороликов с [PornHub](https://rt.pornhub.com/), поддерживающее сортировку по моделям.
+**PornHub Downloader** – это приложение с графическим интерфейсом для массовой загрузки видеороликов с [PornHub](https://www.pornhub.com/), поддерживающее сортировку по моделям.
 
 ## Порядок установки и использования
 1. Загрузить последний релиз. Распаковать.
@@ -22,10 +22,10 @@ pip install -r requirements.txt
 6. Дождаться загрузки видео в  папку _Downloads_, в директории скрипта.
 
 # Скриншот
-![2023-07-08_21-07-35](https://github.com/DUB1401/RemangaParser/assets/40277356/741e9019-dc84-489d-908a-294e3290c979)
+![2023-07-09_17-46-34](https://github.com/DUB1401/PornHub-Downloader/assets/40277356/23716486-985f-40ec-962c-04b42bc1af1f)
 
 # Благодарность
 * [@yt-dlp](https://github.com/yt-dlp) – библиотека загрузки потокового видео.
-* [@tnt2402](https://github.com/tnt2402) – консольная имплементация [yt-dlp](https://github.com/yt-dlp/yt-dlp) для загрузки видеороликов с [PornHub](https://rt.pornhub.com/).
+* [@tnt2402](https://github.com/tnt2402) – консольная имплементация [yt-dlp](https://github.com/yt-dlp/yt-dlp) для загрузки видеороликов с [PornHub](https://www.pornhub.com/).
 
 _Copyright © DUB1401. 2023._

@@ -68,7 +68,7 @@ class MainWindow(QMainWindow):
 	# Запускает потоковый обработчик загрузки видео.
 	def __DownloadVideos(self):
 		# Очистка содержимого псевдоконсоли.
-		self.Output.setText("")
+		self.Output.clear()
 		# Удалить повторяющиеся ссылки.
 		self.__RemoveRepeatedLinks()
 		# Деактивация управляющих элементов.
@@ -299,13 +299,10 @@ class MainWindow(QMainWindow):
 
 		# Если загрузка завершилась успешно, то вывести в псевдоконсоль время выполнения, иначе вывести ошибку.
 		if ExitCode == 0:
-			self.Output.setText(self.Output.toPlainText() + "Done! (" + str(round(float(time.time() - self.__StartTime), 2)) + " seconds)\n")
+			self.Print("<b style=\"color: green;\">Done!</b> (" + str(round(float(time.time() - self.__StartTime), 2)) + " seconds)", True)
 
 		else:
-			self.Output.setText(self.Output.toPlainText() + "Error! See CMD output for more information.\n")
-
-		# Вывод в псевдоконсоль: разделитель.
-		self.Output.setText(self.Output.toPlainText() + "==========================================================================================\n")
+			self.Print("<b style=\"color: red;\">Error!</b> See CMD output for more information.", True)
 
 		# Структурировать загруженные видео.
 		self.__StructurizateDownloads()
@@ -321,7 +318,7 @@ class MainWindow(QMainWindow):
 			# Установка текущей директории для библиотеки.
 			os.chdir(CurrentDirectory.replace("\\pornhub_dl", ""))
 			# Вывод в псевдоконсоль: работа завершена.
-			self.Output.setText(self.Output.toPlainText() + "Complete.\n")
+			self.Print("Complete.")
 			# Активация управляющих элементов.
 			self.Clear.setEnabled(True)
 			self.Download.setEnabled(True)
@@ -350,9 +347,7 @@ class MainWindow(QMainWindow):
 			# Вычисление количества удалённых повторов.
 			RepeatedLinksCount = len(InputLines) - len(ResultLines)
 			# Вывод в псевдоконсоль: количество удалённых повторов.
-			self.Output.setText(self.Output.toPlainText() + "Removed identical links count: " + str(RepeatedLinksCount) + " \n")
-			# Вывод в псевдоконсоль: разделитель.
-			self.Output.setText(self.Output.toPlainText() + "==========================================================================================\n")
+			self.Print("<b>Removed identical links count:</b> " + str(RepeatedLinksCount), True)
 
 	# Обрабатывает начало загрузки видео.
 	def __StartDownloading(self):
@@ -368,11 +363,11 @@ class MainWindow(QMainWindow):
 			# Текущая ссылка.
 			CurrentLink = self.__VideoLinks[self.__VideoIndex]
 			# Вывод в псевдоконсоль: начало загрузки.
-			self.Output.setText(self.Output.toPlainText() + "Downloading: " + str(self.__VideoIndex + 1) + " / " + str(len(self.__VideoLinks)) + "\n")
-			# Вывод в псевдоконсоль: название видео.
-			self.Output.setText(self.Output.toPlainText() + "Current task: " + self.__VideoLinks[self.__VideoIndex] + "\n")
+			self.Print("<b>Downloading: </b>" + str(self.__VideoIndex + 1) + " / " + str(len(self.__VideoLinks)))
+			# Вывод в псевдоконсоль: URL текущей задачи.
+			self.Print("<b>Current task:</b> <i>" + self.__VideoLinks[self.__VideoIndex] + "</i>")
 			# Настройка и запуск обработчика библиотеки в отдельном потоке.
-			self.Subprocess = pornhub_dl(f"{CurrentDirectory}/pornhub_dl.py --url {CurrentLink} --dir \"{SaveDirectory}\"")
+			self.Subprocess = pornhub_dl(f"{CurrentDirectory}\\pornhub_dl.py --url {CurrentLink} --dir \"{SaveDirectory}\"")
 			self.Subprocess.moveToThread(self.__DownloadingThread)
 			self.__DownloadingThread.quit()
 			self.__DownloadingThread.started.connect(self.Subprocess.run)
@@ -448,3 +443,22 @@ class MainWindow(QMainWindow):
 		# Если включён режим отладки, то добавить две тестовые ссылки в поле ввода.
 		if self.__Settings["debug"] == True:
 			self.Input.setText("https://rt.pornhub.com/view_video.php?viewkey=ph5c7ad8fa8b178\nhttps://rt.pornhub.com/view_video.php?viewkey=ph5d302376d91be\n")
+
+	# Отправляет сообщение в псевдоконсоль.
+	def Print(self, Message: str, Separator: bool = False):
+		# Содержимое псевдоконсоли.
+		Text = None
+
+		# Если псевдоконсоль пуста, то задать пустой текст (исправляет наличие пустой строки).
+		if self.Output.toPlainText() == "":
+			Text = ""
+
+		else:
+			Text = self.Output.toHtml()
+
+		# Если указано аргументами, то добавить разделитель после сообщения.
+		if Separator == True:
+			Message += "<br>=========================================================================================="
+
+		# Добавление сообщения в конец.
+		self.Output.setHtml(Text + Message)

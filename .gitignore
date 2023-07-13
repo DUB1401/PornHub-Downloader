@@ -3,9 +3,11 @@ PornHub Downloader.pyproj
 PornHub Downloader.sln
 .vs
 
-# Build data (not available in the current version).
+# Build data.
+pornhub_dl/pornhub_dl.spec
 PornHub Downloader.spec
-Build
+pornhub_dl/build
+Build/Release
 
 # Python cache.
 __pycache__

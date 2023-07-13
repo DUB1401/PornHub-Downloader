@@ -1,3 +1,4 @@
+pyinstaller
 pyperclip
 pyfiglet
 requests

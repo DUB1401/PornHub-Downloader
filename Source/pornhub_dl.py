@@ -29,6 +29,11 @@ class pornhub_dl(QObject):
 
 	# Запускает выполнение команды.
 	def run(self):
+
+		# Если обнаружена скомпилированная версия библиотеки, подставить её в команду.
+		if os.path.exists("pornhub_dl.exe"):
+			self.__Command = self.__Command.replace("pornhub_dl.py", "pornhub_dl.exe")
+
 		# Выполнение команды.
 		ExitCode = os.system(self.__Command)
 		# Генерация сигнала с завершающим кодом приложения.

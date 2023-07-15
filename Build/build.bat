@@ -6,6 +6,7 @@ pyinstaller --distpath %~dp0\Release --i icon.ico --version-file Build\metadata.
 
 :: Копирование в директорию сборки необходимых компонентов приложения.
 xcopy /I pornhub_dl Build\Release\pornhub_dl
+xcopy /Y Advertisement.gif Build\Release
 xcopy /Y Settings.json Build\Release
 xcopy /Y icon.ico Build\Release
 
@@ -25,4 +26,5 @@ cd ..\
 del /q Build\Release\pornhub_dl\lib_pornhub.py
 del /q Build\Release\pornhub_dl\pornhub_dl.py
 del /q Build\Release\pornhub_dl\pornhub_dl.py
+del /q Build\Release\pornhub_dl\pornhub_dl.spec
 del /q Build\Release\pornhub_dl\requirements.txt

@@ -12,9 +12,10 @@ from PyQt6.QtWidgets import (
 	QVBoxLayout
 )
 
+from PyQt6.QtGui import QDesktopServices, QMovie, QTextCursor
+from Source.QLabelAdvertisement import QLabelAdvertisement
+from PyQt6.QtCore import Qt,QSize, QThread, QUrl
 from Source.pornhub_dl import pornhub_dl
-from PyQt6.QtGui import QDesktopServices, QTextCursor
-from PyQt6.QtCore import Qt,QThread, QUrl
 
 import pyperclip
 import shutil
@@ -139,6 +140,10 @@ class MainWindow(QMainWindow):
 		# Перемещение каретки в конец поля ввода.
 		self.Input.moveCursor(QTextCursor.MoveOperation.End, QTextCursor.MoveMode.MoveAnchor)
 
+	# Открывает в браузере рекламируемую страницу.
+	def __OpenAdvertisement(self):
+		QDesktopServices.openUrl(QUrl(self.__Settings["advertisement"]))
+
 	# Открывает в браузере страницу проекта на GitHub.
 	def __OpenGitHub(self):
 		QDesktopServices.openUrl(QUrl("https://github.com/DUB1401/PornHub-Downloader"))
@@ -170,16 +175,36 @@ class MainWindow(QMainWindow):
 	# >>>>> МЕТОДЫ <<<<< #
 	#==========================================================================================#
 
+	# Создание группы GUI: реклама.
+	def __CreatAdvertisementGroupUI(self):
+		# Слой рекламного блока.
+		AdvertisementLayout = QVBoxLayout()
+		# Установка слоя для элемента QGroupBox.
+		self.AdsBox.setLayout(AdvertisementLayout)
+
+		# Создание объекта GUI: рекламная анимация.
+		AdvertisementGIF = QMovie("Advertisement.gif")
+		AdvertisementGIF.setScaledSize(QSize(180, 260))
+		AdvertisementGIF.start()
+		
+		# Создание объекта GUI: рекламная ссылка.
+		Advertisement = QLabelAdvertisement(self)
+		Advertisement.clicked.connect(self.__OpenAdvertisement)
+		Advertisement.setMovie(AdvertisementGIF)
+		
+		# Добавление объекта GUI в слой.
+		AdvertisementLayout.addWidget(Advertisement)
+
 	# Создание базовых элементов GUI.
 	def __CreateBasicUI(self):
 
 		# Создание объекта GUI: контейнер рекламы.
-		self.AdsBlock = QGroupBox(self)
-		self.AdsBlock.move(870, 130)
-		self.AdsBlock.resize(200, 300)
-		self.AdsBlock.setAlignment(Qt.AlignmentFlag.AlignCenter)
-		self.AdsBlock.setTitle("📰 Advertisement")
-
+		self.AdsBox = QGroupBox(self)
+		self.AdsBox.move(870, 130)
+		self.AdsBox.resize(200, 300)
+		self.AdsBox.setAlignment(Qt.AlignmentFlag.AlignCenter)
+		self.AdsBox.setTitle("📰 Advertisement")
+		
 		# Создание объекта GUI: кнока очистки вывода.
 		self.Clear = QPushButton(self)
 		self.Clear.clicked.connect(self.__Clear)
@@ -438,7 +463,7 @@ class MainWindow(QMainWindow):
 
 	# Конструктор: задаёт экземпляр приложения, словарь важных значений и глобальные настройки.
 	def __init__(self, Application: QApplication, ComData: dict, Settings: dict):
-		# 
+		# Обеспечение доступа к оригиналам наследованных методов.
 		super().__init__()
 
 		#---> Генерация свойств.
@@ -459,8 +484,14 @@ class MainWindow(QMainWindow):
 		self.__CreateBasicUI()
 		self.__CreateSettingsGroupUI()
 
-		# Отключение блока рекламы.
-		self.AdsBlock.setVisible(False)
+		# Если включено отображение рекламы.
+		if self.__Settings["advertisement"] != "" and self.__Settings["advertisement"] != None and os.path.exists("Advertisement.gif"):
+			# Генерация рекламного блока.
+			self.__CreatAdvertisementGroupUI()
+
+		else:
+			# Отключение видимости рекламного блока.
+			self.AdsBox.setVisible(False)
 
 		# Если включён режим отладки, то добавить две тестовые ссылки в поле ввода.
 		if self.__Settings["debug"] == True:

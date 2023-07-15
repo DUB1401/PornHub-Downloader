@@ -12,5 +12,8 @@ Build/Release
 # Python cache.
 __pycache__
 
+# Advertisement animation file.
+Advertisement.gif
+
 # Downloaded videos.
 Downloads

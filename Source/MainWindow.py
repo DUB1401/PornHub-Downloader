@@ -12,7 +12,7 @@ from PyQt6.QtWidgets import (
 	QVBoxLayout
 )
 
-from PyQt6.QtGui import QDesktopServices, QMovie, QTextCursor
+from PyQt6.QtGui import QCursor, QDesktopServices, QMovie, QTextCursor
 from Source.QLabelAdvertisement import QLabelAdvertisement
 from PyQt6.QtCore import Qt,QSize, QThread, QUrl
 from Source.pornhub_dl import pornhub_dl
@@ -190,6 +190,7 @@ class MainWindow(QMainWindow):
 		# Создание объекта GUI: рекламная ссылка.
 		Advertisement = QLabelAdvertisement(self)
 		Advertisement.clicked.connect(self.__OpenAdvertisement)
+		Advertisement.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
 		Advertisement.setMovie(AdvertisementGIF)
 		
 		# Добавление объекта GUI в слой.
@@ -204,7 +205,7 @@ class MainWindow(QMainWindow):
 		self.AdsBox.resize(200, 300)
 		self.AdsBox.setAlignment(Qt.AlignmentFlag.AlignCenter)
 		self.AdsBox.setTitle("📰 Advertisement")
-		
+
 		# Создание объекта GUI: кнока очистки вывода.
 		self.Clear = QPushButton(self)
 		self.Clear.clicked.connect(self.__Clear)

@@ -19,6 +19,3 @@ class QLabelAdvertisement(QLabel):
     def mousePressEvent(self, Value):
         # Генерация сигнала.
         self.clicked.emit()
-
-
-

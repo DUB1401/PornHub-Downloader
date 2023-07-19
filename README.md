@@ -27,7 +27,7 @@ pip install -r requirements.txt
 5. Дождаться скачивания видео в  папку _Downloads_, в директории скрипта.
 
 # Скриншот
-![2023-07-15_13-16-38](https://github.com/DUB1401/PornHub-Downloader/assets/40277356/77ce1874-87f0-4f0c-9e1f-8ce8633a2fea)
+![2023-07-15_14-12-12](https://github.com/DUB1401/PornHub-Downloader/assets/40277356/2e9fed0f-d664-4b10-ad27-29b4a81d6a7d)
 
 # Сборка
 1. Подготовить скрипт Python к работе согласно инструкции из порядка установки и использования.

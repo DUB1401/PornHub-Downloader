@@ -5,7 +5,7 @@ cd ..\
 pyinstaller --distpath %~dp0\Release --i icon.ico --version-file Build\metadata.txt --onefile "PornHub Downloader.py"
 
 :: Копирование в директорию сборки необходимых компонентов приложения.
-xcopy /I pornhub_dl Build\Release\pornhub_dl
+xcopy /Y /I pornhub_dl Build\Release\pornhub_dl
 xcopy /Y Advertisement.gif Build\Release
 xcopy /Y Settings.json Build\Release
 xcopy /Y icon.ico Build\Release

@@ -1,4 +1,0 @@
-requests
-lxml
-pyfiglet
-tqdm

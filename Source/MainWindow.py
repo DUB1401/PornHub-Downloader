@@ -15,10 +15,9 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QCursor, QDesktopServices, QMovie, QTextCursor
 from Source.QLabelAdvertisement import QLabelAdvertisement
 from PyQt6.QtCore import Qt,QSize, QThread, QUrl
-from Source.pornhub_dl import pornhub_dl
+from Source.yt_dlp import yt_dlp
 
 import pyperclip
-import shutil
 import json
 import time
 import os
@@ -79,10 +78,6 @@ class MainWindow(QMainWindow):
 		self.Paste.setEnabled(False)
 		# Получение списка URL видео.
 		self.__VideoLinks = list(filter(None, self.Input.toPlainText().strip().split('\n')))
-		# Текущая директория.
-		CurrentDirectory = os.getcwd()
-		# Установка текущей директории для библиотеки.
-		os.chdir(CurrentDirectory + "\\pornhub_dl")
 		# Настройка индикатора прогресса.
 		self.ProgressBar.setMaximum(len(self.__VideoLinks))
 		self.ProgressBar.setValue(0)
@@ -157,7 +152,7 @@ class MainWindow(QMainWindow):
 		# Обновление значения поля настройки.
 		self.__Settings[Key] = Value
 		# Копирование настроек.
-		Bufer = self.__Settings
+		Bufer = self.__Settings.copy()
 
 		# Удаление пути к стандартной папке загрузок.
 		if Bufer["save-directory"] == os.getcwd() + "\\Downloads":
@@ -299,13 +294,15 @@ class MainWindow(QMainWindow):
 		ThemeSelecter.currentIndexChanged.connect(lambda: self.__SaveSetting("theme", ThemeSelecter.currentIndex()))
 		ThemeSelecter.currentIndexChanged.connect(self.__ChangeTheme)
 		ThemeSelecter.resize(180, 20)
-		
+		ThemeSelecter.setToolTip("Sets the style of the program window.")
+
 		# Создание объекта GUI: флаговая кнопка включения сортировки по моделям.
 		SortByModel = QCheckBox(self)
 		SortByModel.clicked.connect(lambda: self.__SaveSetting("sort-by-models", SortByModel.isChecked()))
-		SortByModel.setText("Sort by models")
-		SortByModel.adjustSize()
 		SortByModel.setChecked(self.__Settings["sort-by-models"])
+		SortByModel.setText("Sort by models")
+		SortByModel.setToolTip("Sorting videos into the folders by uploader nickname.")
+		SortByModel.adjustSize()
 		
 		#---> Добавление объектов GUI в слой.
 		#==========================================================================================#
@@ -318,8 +315,6 @@ class MainWindow(QMainWindow):
 	def __EndDownloading(self, ExitCode: int):
 		# Инкремент индекса загружаемого видео.
 		self.__VideoIndex += 1
-		# Текущая директория.
-		CurrentDirectory = os.getcwd()
 		# Увеличение процента заполнение в индикаторе прогресса.
 		self.ProgressBar.setValue(self.__VideoIndex)
 
@@ -330,8 +325,6 @@ class MainWindow(QMainWindow):
 		else:
 			self.Print("<b style=\"color: red;\">Error!</b> See CMD output for more information.", True)
 
-		# Структурировать загруженные видео.
-		self.__StructurizateDownloads()
 		# Удаление первого в очереди URL.
 		self.Input.setText('\n'.join(self.Input.toPlainText().split('\n')[1:]))
 
@@ -341,8 +334,6 @@ class MainWindow(QMainWindow):
 			self.__StartDownloading()
 
 		else:
-			# Установка текущей директории для библиотеки.
-			os.chdir(CurrentDirectory.replace("\\pornhub_dl", ""))
 			# Вывод в псевдоконсоль: работа завершена.
 			self.Print("Complete.")
 			# Активация управляющих элементов.
@@ -399,10 +390,9 @@ class MainWindow(QMainWindow):
 
 	# Обрабатывает начало загрузки видео.
 	def __StartDownloading(self):
-		# Текущая директория.
-		CurrentDirectory = os.getcwd()
 		# Директория загрузки.
 		SaveDirectory = self.__Settings["save-directory"]
+
 		# Сохранение времени начала загрузки.
 		self.__StartTime = time.time()
 
@@ -415,52 +405,13 @@ class MainWindow(QMainWindow):
 			# Вывод в псевдоконсоль: URL текущей задачи.
 			self.Print("<b>Current task:</b> <i>" + self.__VideoLinks[self.__VideoIndex] + "</i>")
 			# Настройка и запуск обработчика библиотеки в отдельном потоке.
-			self.Subprocess = pornhub_dl(f"{CurrentDirectory}\\pornhub_dl.py --url {CurrentLink} --dir \"{SaveDirectory}\"")
+			self.Subprocess = yt_dlp(SaveDirectory, CurrentLink, self.__Settings["sort-by-models"])
 			self.Subprocess.moveToThread(self.__DownloadingThread)
 			self.__DownloadingThread.quit()
 			self.__DownloadingThread.started.connect(self.Subprocess.run)
 			self.Subprocess.finished.connect(self.__EndDownloading)
 			self.Subprocess.finished.connect(self.__DownloadingThread.quit)
 			self.__DownloadingThread.start()
-
-	# Структурирует загруженные видео.
-	def __StructurizateDownloads(self):
-		# Получение списка папок в директории models.
-		FoldersList = os.listdir(self.__Settings["save-directory"] + "\\model")
-
-		# Если включена сортировка по моделям.
-		if self.__Settings["sort-by-models"] == True:
-			
-			# Каждую папку переместить в целевую директорию.
-			for Folder in FoldersList:
-
-				try:
-					shutil.move(self.__Settings["save-directory"] + "\\model\\" + Folder, self.__Settings["save-directory"])
-
-				except shutil.Error:
-					pass
-
-			# Удалить исходную директорию с файлами.
-			shutil.rmtree(self.__Settings["save-directory"] + "\\model")
-
-		else:
-			
-			# Для каждой папки с названием модели.
-			for Folder in FoldersList:
-				# Получение списка файлов в директории модели.
-				FilesList = os.listdir(self.__Settings["save-directory"] + "\\model\\" + Folder)
-
-				# Каждый файл переместить в целевую директорию.
-				for File in FilesList:
-
-					try:
-						shutil.move(self.__Settings["save-directory"] + "\\model\\" + Folder + "\\" + File, self.__Settings["save-directory"])
-
-					except shutil.Error:
-						pass
-
-			# Удалить исходную директорию с файлами.
-			shutil.rmtree(self.__Settings["save-directory"] + "\\model")
 
 	# Конструктор: задаёт экземпляр приложения, словарь важных значений и глобальные настройки.
 	def __init__(self, Application: QApplication, ComData: dict, Settings: dict):

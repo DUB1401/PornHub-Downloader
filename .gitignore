@@ -1,19 +1,20 @@
-# Visual Studio project files.
-PornHub Downloader.pyproj
-PornHub Downloader.sln
-.vs
-
 # Build data.
 pornhub_dl/pornhub_dl.spec
 PornHub Downloader.spec
 pornhub_dl/build
 Build/Release
 
+# Visual Studio project files.
+PornHub Downloader.pyproj
+PornHub Downloader.sln
+.vs
+
+# Downloaded videos and it's data.
+Downloads.ytdl
+Downloads
+
 # Python cache.
 __pycache__
 
 # Advertisement animation file.
 Advertisement.gif
-
-# Downloaded videos.
-Downloads

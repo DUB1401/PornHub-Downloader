@@ -9,25 +9,21 @@
 ## Порядок установки и использования | Скрипт Python
 1. Загрузить последний релиз скрипта. Распаковать.
 2. Установить Python версии не старше 3.10. Рекомендуется добавить в PATH.
-3. В среду исполнения установить следующие пакеты: [pyinstaller](https://github.com/pyinstaller/pyinstaller), [pyperclip](https://github.com/asweigart/pyperclip), [pyfiglet](https://github.com/pwaller/pyfiglet), [requests](https://github.com/psf/requests), [pyqt6](https://www.riverbankcomputing.com/software/pyqt/), [lxml](https://github.com/lxml/lxml), [tqdm](https://github.com/tqdm/tqdm).
+3. В среду исполнения установить следующие пакеты: [pyinstaller](https://github.com/pyinstaller/pyinstaller), [requests](https://github.com/psf/requests), [pyqt6](https://www.riverbankcomputing.com/software/pyqt/).
 ```
 pip install pyinstaller
-pip install pyperclip
-pip install pyfiglet
 pip install requests
 pip install pyqt6
-pip install lxml
-pip install tqdm
 ```
 Либо установить сразу все пакеты при помощи следующей команды, выполненной из директории скрипта.
 ```
 pip install -r requirements.txt
 ```
 4. Запустить _PornHub Downloader.py_. Вставить в поле ввода список ссылок на видео и нажать кнопку загрузки.
-5. Дождаться скачивания видео в  папку _Downloads_, в директории скрипта.
+5. Дождаться скачивания видео в папку _Downloads_, в директории скрипта.
 
 # Скриншот
-![2023-07-15_14-12-12](https://github.com/DUB1401/PornHub-Downloader/assets/40277356/2e9fed0f-d664-4b10-ad27-29b4a81d6a7d)
+![2023-07-31_16-13-30](https://github.com/DUB1401/PornHub-Downloader/assets/40277356/0661c5c2-4ca5-4c43-a2ec-8d2b71e9f893)
 
 # Сборка
 1. Подготовить скрипт Python к работе согласно инструкции из порядка установки и использования.
@@ -35,8 +31,14 @@ pip install -r requirements.txt
 3. Запустить файл _build.bat_ и дождаться завершения работы.
 4. Исполняемая версия будет помещена по адресу _Build/Release_ вместе со всеми зависимостями.
 
+## Версии поставляемых бинарных файлов
+| Файл    | Версия                        | Источник                                                           |
+|---------|-------------------------------|--------------------------------------------------------------------|
+| yt-dlp  | _2023.07.06_                  | [ссылка](https://github.com/yt-dlp/yt-dlp/releases/tag/2023.07.06) |
+| ffmpeg  | _6.0 2023-03-04_ (essentials) | [ссылка](https://github.com/GyanD/codexffmpeg/releases/tag/6.0)    |
+| ffprobe | _6.0 2023-03-04_ (essentials) | [ссылка](https://github.com/GyanD/codexffmpeg/releases/tag/6.0)    |
+
 # Благодарность
 * [@yt-dlp](https://github.com/yt-dlp) – библиотека загрузки потокового видео.
-* [@tnt2402](https://github.com/tnt2402) – консольная имплементация [yt-dlp](https://github.com/yt-dlp/yt-dlp) для загрузки видеороликов с [PornHub](https://www.pornhub.com/).
 
 _Copyright © DUB1401. 2023._

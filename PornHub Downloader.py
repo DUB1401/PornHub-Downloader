@@ -30,7 +30,7 @@ Settings = {
 }
 # Словарь важных значений.
 ComData = {
-	"version": "1.3.0",
+	"version": "1.3.1",
 	"copyright": "Copyright © 2023. DUB1401."
 }
 

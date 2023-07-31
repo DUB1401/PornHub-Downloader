@@ -30,6 +30,8 @@ class MainWindow(QMainWindow):
 	# >>>>> СВОЙСТВА <<<<< #
 	#==========================================================================================#
 
+	# Список поддерживаемых разрешений.
+	__Resolutions = ["4096", "2048", "1080", "720", "480", "240"]
 	# Поток загрузки видео.
 	__DownloadingThread = None
 	# Список URL видео.
@@ -196,7 +198,7 @@ class MainWindow(QMainWindow):
 
 		# Создание объекта GUI: контейнер рекламы.
 		self.AdsBox = QGroupBox(self)
-		self.AdsBox.move(870, 130)
+		self.AdsBox.move(870, 170)
 		self.AdsBox.resize(200, 300)
 		self.AdsBox.setAlignment(Qt.AlignmentFlag.AlignCenter)
 		self.AdsBox.setTitle("📰 Advertisement")
@@ -268,7 +270,7 @@ class MainWindow(QMainWindow):
 		# Создание объекта GUI: контейнер настроек.
 		self.SettingsBox = QGroupBox(self)
 		self.SettingsBox.move(870, 10)
-		self.SettingsBox.resize(200, 120)
+		self.SettingsBox.resize(200, 160)
 		self.SettingsBox.setAlignment(Qt.AlignmentFlag.AlignCenter)
 		self.SettingsBox.setTitle("🔧 Settings")
 
@@ -281,6 +283,19 @@ class MainWindow(QMainWindow):
 
 		#---> Создание объектов GUI.
 		#==========================================================================================#
+
+		# Создание объекта GUI: заголовок выбора качества.
+		CualityTitle = QLabel(self)
+		CualityTitle.setText("Cuality:")
+		CualityTitle.adjustSize()
+
+		# Создание объекта GUI: селектор качества.
+		CualitySelecter = QComboBox(self)
+		CualitySelecter.addItems(["4K", "2K", "1080", "720", "480", "240"])
+		CualitySelecter.setCurrentIndex(self.__Settings["cuality"])
+		CualitySelecter.currentIndexChanged.connect(lambda: self.__SaveSetting("cuality", CualitySelecter.currentIndex()))
+		CualitySelecter.resize(180, 40)
+		CualitySelecter.setToolTip("Resolution of the downloaded video.")
 
 		# Создание объекта GUI: заголовок выбора темы.
 		ThemeTitle = QLabel(self)
@@ -309,6 +324,8 @@ class MainWindow(QMainWindow):
 		SettingsLayout.addWidget(SortByModel)
 		SettingsLayout.addWidget(ThemeTitle)
 		SettingsLayout.addWidget(ThemeSelecter)
+		SettingsLayout.addWidget(CualityTitle)
+		SettingsLayout.addWidget(CualitySelecter)
 		SettingsLayout.addStretch()
 
 	# Обрабатывает завершение загрузки видео.
@@ -405,7 +422,7 @@ class MainWindow(QMainWindow):
 			# Вывод в псевдоконсоль: URL текущей задачи.
 			self.Print("<b>Current task:</b> <i>" + self.__VideoLinks[self.__VideoIndex] + "</i>")
 			# Настройка и запуск обработчика библиотеки в отдельном потоке.
-			self.Subprocess = yt_dlp(SaveDirectory, CurrentLink, self.__Settings["sort-by-models"])
+			self.Subprocess = yt_dlp(SaveDirectory, CurrentLink, self.__Settings["sort-by-models"], self.__Resolutions[self.__Settings["cuality"]])
 			self.Subprocess.moveToThread(self.__DownloadingThread)
 			self.__DownloadingThread.quit()
 			self.__DownloadingThread.started.connect(self.Subprocess.run)

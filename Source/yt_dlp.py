@@ -19,6 +19,8 @@ class yt_dlp(QObject):
 	__SortByUploader = None
 	# Директория сохранения.
 	__SaveDirectory = None
+	# Выбранное качество.
+	__Cuality = None
 	# Дамп данных видео.
 	__Dump = None
 	# Ссылка на видео.
@@ -29,7 +31,7 @@ class yt_dlp(QObject):
 	#==========================================================================================#
 
 	# Конструктор: задаёт команду для выполнения.
-	def __init__(self, SaveDirectory: str, Link: str, SortByUploader: bool):
+	def __init__(self, SaveDirectory: str, Link: str, SortByUploader: bool, Cuality: str):
 		# Обеспечение доступа к оригиналам наследованных методов.
 		super().__init__()
 
@@ -39,6 +41,7 @@ class yt_dlp(QObject):
 		self.__SaveDirectory = SaveDirectory
 		self.__Link = Link
 		self.__SortByUploader = SortByUploader
+		self.__Cuality = Cuality
 
 	# Возвращает словарь описания предварительного процессирования yt-dlp.
 	def dump(self) -> dict:
@@ -61,6 +64,6 @@ class yt_dlp(QObject):
 			Uploader = ""
 
 		# Выполнение команды.
-		ExitCode = os.system(f"{self.__CurrentDirectory}\\yt-dlp\\yt-dlp -o \"{self.__SaveDirectory}{Uploader}\\{Filename}\" {self.__Link}")
+		ExitCode = os.system(f"{self.__CurrentDirectory}\\yt-dlp\\yt-dlp -f \"bv*[height<={self.__Cuality}]+ba/b[height<={self.__Cuality}]\" -o \"{self.__SaveDirectory}{Uploader}\\{Filename}\" {self.__Link}")
 		# Генерация сигнала с завершающим кодом приложения.
 		self.finished.emit(ExitCode)

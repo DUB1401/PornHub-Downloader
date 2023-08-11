@@ -23,7 +23,7 @@ pip install -r requirements.txt
 5. Дождаться скачивания видео в папку _Downloads_, в директории скрипта.
 
 # Скриншот
-![2023-07-31_19-22-56](https://github.com/DUB1401/PornHub-Downloader/assets/40277356/beec4c4e-ba0c-42d1-bff9-ce8fd7a7a3b4)
+![2023-08-11_12-41-08](https://github.com/DUB1401/PornHub-Downloader/assets/40277356/c319a663-3969-4a2f-8b7b-94a3438b4e0c)
 
 # Сборка
 1. Подготовить скрипт Python к работе согласно инструкции из порядка установки и использования.
@@ -31,12 +31,17 @@ pip install -r requirements.txt
 3. Запустить файл _build.bat_ и дождаться завершения работы.
 4. Исполняемая версия будет помещена по адресу _Build/Release_ вместе со всеми зависимостями.
 
+## Локализация
+Для добавления сторонней локализации необходимо отредактировать файл [Locale.py](Source/Locale.py): в `LOCALES` указываются списки используемых программой строк на целевом языке, ключём должен являться двухбуквенный тег языка в верхнем регистре по стандарту **ISO 639-1**.
+
+Доступные локализации: `EN`, `DE`, `PL`, `RU`, `UK`.
+
 ## Версии поставляемых бинарных файлов
 | Файл    | Версия                        | Источник                                                           |
 |---------|-------------------------------|--------------------------------------------------------------------|
 | yt-dlp  | _2023.07.06_                  | [ссылка](https://github.com/yt-dlp/yt-dlp/releases/tag/2023.07.06) |
-| ffmpeg  | _6.0 2023-03-04_ (essentials) | [ссылка](https://github.com/GyanD/codexffmpeg/releases/tag/6.0)    |
-| ffprobe | _6.0 2023-03-04_ (essentials) | [ссылка](https://github.com/GyanD/codexffmpeg/releases/tag/6.0)    |
+| ffmpeg  | _6.0 2023-03-04 (essentials)_ | [ссылка](https://github.com/GyanD/codexffmpeg/releases/tag/6.0)    |
+| ffprobe | _6.0 2023-03-04 (essentials)_ | [ссылка](https://github.com/GyanD/codexffmpeg/releases/tag/6.0)    |
 
 # Благодарность
 * [@yt-dlp](https://github.com/yt-dlp) – библиотека загрузки потокового видео.

@@ -11,10 +11,10 @@ from PyQt6.QtWidgets import (
 	QTextEdit,
 	QVBoxLayout
 )
-
 from PyQt6.QtGui import QCursor, QDesktopServices, QMovie, QTextCursor
 from Source.QLabelAdvertisement import QLabelAdvertisement
 from PyQt6.QtCore import Qt,QSize, QThread, QUrl
+from Source.Locale import CURRENT_LOCALE
 from Source.yt_dlp import yt_dlp
 
 import pyperclip
@@ -201,21 +201,21 @@ class MainWindow(QMainWindow):
 		self.AdsBox.move(870, 170)
 		self.AdsBox.resize(200, 300)
 		self.AdsBox.setAlignment(Qt.AlignmentFlag.AlignCenter)
-		self.AdsBox.setTitle("📰 Advertisement")
+		self.AdsBox.setTitle(f"📰 {CURRENT_LOCALE[0]}")
 
 		# Создание объекта GUI: кнока очистки вывода.
 		self.Clear = QPushButton(self)
 		self.Clear.clicked.connect(self.__Clear)
 		self.Clear.move(870, 590)
 		self.Clear.resize(200, 40)
-		self.Clear.setText("🧹 Clear")
+		self.Clear.setText(f"🧹 {CURRENT_LOCALE[1]}")
 
 		# Создание объекта GUI: кнока копирования вывода.
 		self.Copy = QPushButton(self)
 		self.Copy.clicked.connect(self.__CopyOutput)
 		self.Copy.move(870, 540)
 		self.Copy.resize(200, 40)
-		self.Copy.setText("📋 Copy output")
+		self.Copy.setText(f"📋  {CURRENT_LOCALE[2]}")
 
 		# Создание объекта GUI: подпись защиты прав.
 		self.Copyright = QLabel(self)
@@ -229,13 +229,13 @@ class MainWindow(QMainWindow):
 		self.Download.move(870, 640)
 		self.Download.resize(200, 40)
 		self.Download.setEnabled(False)
-		self.Download.setText("⬇ Download")
+		self.Download.setText(f"⬇  {CURRENT_LOCALE[3]}")
 
 		# Создание объекта GUI: поле ввода ссылок на видео.
 		self.Input = QTextEdit(self)
 		self.Input.move(10, 10)
 		self.Input.resize(850, 420)
-		self.Input.setPlaceholderText("Paste here links to videos")
+		self.Input.setPlaceholderText(CURRENT_LOCALE[4])
 		self.Input.textChanged.connect(self.__FormatInput)
 
 		# Создание объекта GUI: ссылка на GitHub.
@@ -250,7 +250,7 @@ class MainWindow(QMainWindow):
 		self.Output.move(10, 490)
 		self.Output.resize(850, 190)
 		self.Output.setReadOnly(True)
-		self.Output.setPlaceholderText("Output logs")
+		self.Output.setPlaceholderText(CURRENT_LOCALE[5])
 		self.Output.textChanged.connect(self.__ScrollOutputToEnd)
 
 		# Создание объекта GUI: кнока добавления ссылки в очередь.
@@ -258,7 +258,7 @@ class MainWindow(QMainWindow):
 		self.Paste.clicked.connect(self.__Paste)
 		self.Paste.move(870, 490)
 		self.Paste.resize(200, 40)
-		self.Paste.setText("📖 Paste link")
+		self.Paste.setText(f"📖 {CURRENT_LOCALE[6]}")
 
 		# Создание объекта GUI: индикатор прогресса.
 		self.ProgressBar = QProgressBar(self)
@@ -272,7 +272,7 @@ class MainWindow(QMainWindow):
 		self.SettingsBox.move(870, 10)
 		self.SettingsBox.resize(200, 160)
 		self.SettingsBox.setAlignment(Qt.AlignmentFlag.AlignCenter)
-		self.SettingsBox.setTitle("🔧 Settings")
+		self.SettingsBox.setTitle(f"🔧 {CURRENT_LOCALE[7]}")
 
 	# Создание группы GUI: настройки.
 	def __CreateSettingsGroupUI(self):
@@ -286,7 +286,7 @@ class MainWindow(QMainWindow):
 
 		# Создание объекта GUI: заголовок выбора качества.
 		CualityTitle = QLabel(self)
-		CualityTitle.setText("Cuality:")
+		CualityTitle.setText(f"{CURRENT_LOCALE[8]}:")
 		CualityTitle.adjustSize()
 
 		# Создание объекта GUI: селектор качества.
@@ -295,11 +295,11 @@ class MainWindow(QMainWindow):
 		CualitySelecter.setCurrentIndex(self.__Settings["cuality"])
 		CualitySelecter.currentIndexChanged.connect(lambda: self.__SaveSetting("cuality", CualitySelecter.currentIndex()))
 		CualitySelecter.resize(180, 40)
-		CualitySelecter.setToolTip("Resolution of the downloaded video.")
+		CualitySelecter.setToolTip(CURRENT_LOCALE[9])
 
 		# Создание объекта GUI: заголовок выбора темы.
 		ThemeTitle = QLabel(self)
-		ThemeTitle.setText("Theme:")
+		ThemeTitle.setText(f"{CURRENT_LOCALE[10]}:")
 		ThemeTitle.adjustSize()
 
 		# Создание объекта GUI: селектор темы.
@@ -309,13 +309,13 @@ class MainWindow(QMainWindow):
 		ThemeSelecter.currentIndexChanged.connect(lambda: self.__SaveSetting("theme", ThemeSelecter.currentIndex()))
 		ThemeSelecter.currentIndexChanged.connect(self.__ChangeTheme)
 		ThemeSelecter.resize(180, 20)
-		ThemeSelecter.setToolTip("Sets the style of the program window.")
+		ThemeSelecter.setToolTip(CURRENT_LOCALE[11])
 
 		# Создание объекта GUI: флаговая кнопка включения сортировки по моделям.
 		SortByModel = QCheckBox(self)
 		SortByModel.clicked.connect(lambda: self.__SaveSetting("sort-by-models", SortByModel.isChecked()))
 		SortByModel.setChecked(self.__Settings["sort-by-models"])
-		SortByModel.setText("Sort by models")
+		SortByModel.setText(CURRENT_LOCALE[12])
 		SortByModel.setToolTip("Sorting videos into the folders by uploader nickname.")
 		SortByModel.adjustSize()
 		

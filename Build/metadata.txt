@@ -21,7 +21,6 @@ VSVersionInfo(
         StringStruct(u'OriginalFilename', u'PornHub Downloader.exe'),
         StringStruct(u'ProductName', u'PornHub Downloader'),
         StringStruct(u'ProductVersion', u'1.3.1')])
-      ]), 
-    VarFileInfo([VarStruct(u'Translation', [1033, 1200])])
+      ])
   ]
 )
